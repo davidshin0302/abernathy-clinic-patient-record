@@ -1,0 +1,19 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: abernathy_clinic_drnote
+  application:
+  name: abernathy-clinic-drnote
+#####################
+# Actuator Configuration
+#####################
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, httpexchanges
