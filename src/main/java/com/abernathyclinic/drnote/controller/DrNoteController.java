@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Controller
 @RequestMapping("/patHistory/add")
@@ -19,13 +22,24 @@ public class DrNoteController {
     private DrNoteRepository drNoteRepository;
 
     @PostMapping
-    public ResponseEntity<String> addPathHistory(@RequestParam("patId") Long patId, @RequestParam("note") String note) {
+    public ResponseEntity<String> addPathHistory(@RequestParam("patId") String patId, @RequestParam("note") String note) {
+        List<String> notes = new ArrayList<>();
         ResponseEntity<String> responseEntity;
-        DrNote drNote = DrNote.builder().id(patId).note(note).build();
+        DrNote drNote;
 
         log.info("Post request handling.../patHistory/add");
 
+        if (drNoteRepository.findById(patId).isPresent()) {
+            drNote = drNoteRepository.findById(patId).get();
+        } else {
+            drNote = DrNote.builder()
+                    .id(patId)
+                    .notes(notes)
+                    .build();
+        }
+
         try {
+            drNote.addNote(note);
             drNoteRepository.save(drNote);
 
             responseEntity = ResponseEntity.status(HttpStatus.CREATED).build();
