@@ -19,8 +19,9 @@ public class DrNoteController {
     private DrNoteRepository drNoteRepository;
 
     @PostMapping
-    public ResponseEntity<String> addPathHistory(@RequestParam DrNote drNote) {
+    public ResponseEntity<String> addPathHistory(@RequestParam("patId") Long patId, @RequestParam("note") String note) {
         ResponseEntity<String> responseEntity;
+        DrNote drNote = DrNote.builder().id(patId).note(note).build();
 
         log.info("Post request handling.../patHistory/add");
 
@@ -29,7 +30,7 @@ public class DrNoteController {
 
             responseEntity = ResponseEntity.status(HttpStatus.CREATED).build();
 
-            log.info("Saved drNote: {}",drNote);
+            log.info("Saved drNote: {}", drNote);
         } catch (RuntimeException ex) {
             log.info("Unable to saved Dr Note: {}", drNote);
             log.error(ex.getMessage());
