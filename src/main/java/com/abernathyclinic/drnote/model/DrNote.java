@@ -2,12 +2,20 @@ package com.abernathyclinic.drnote.model;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Data
 @Builder
 @Document(collation = "drNotes")
 public class DrNote {
-    private Long id;
-    private String note;
+    @Id
+    private String id;
+    private List<String> notes;
+
+    public void addNote(String note){
+        this.notes.add(note);
+    }
 }
