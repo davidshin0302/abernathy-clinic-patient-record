@@ -17,3 +17,8 @@ management:
     web:
       exposure:
         include: health, info, metrics, httpexchanges
+#####################
+# Server Configuration
+#####################
+server:
+  port: 8082
