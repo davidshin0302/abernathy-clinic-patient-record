@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @Builder
-@Document(collation = "drNotes")
+@Document(collection = "drNotes")
 public class DrNote {
     @Id
     private String id;
