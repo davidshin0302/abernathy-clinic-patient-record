@@ -13,6 +13,7 @@ import java.util.List;
 public class DrNote {
     @Id
     private String id;
+    private String patId;
     private List<String> notes;
 
     public void addNote(String note){

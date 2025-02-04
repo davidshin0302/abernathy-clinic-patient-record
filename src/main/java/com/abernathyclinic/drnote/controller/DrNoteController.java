@@ -33,7 +33,7 @@ public class DrNoteController {
             drNote = drNoteRepository.findById(patId).get();
         } else {
             drNote = DrNote.builder()
-                    .id(patId)
+                    .patId(patId)
                     .notes(notes)
                     .build();
         }
@@ -46,7 +46,7 @@ public class DrNoteController {
 
             log.info("Saved drNote: {}", drNote);
         } catch (RuntimeException ex) {
-            log.info("Unable to saved Dr Note: {}", drNote);
+            log.error("Unable to saved Dr Note: {}", drNote);
             log.error(ex.getMessage());
 
             responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
