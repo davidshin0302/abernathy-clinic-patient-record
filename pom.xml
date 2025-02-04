@@ -106,7 +106,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.8</version>
+				<version>0.8.12</version>
 				<executions>
 					<execution>
 						<goals>
@@ -125,9 +125,9 @@
 				<configuration>
 					<!-- Specify exclusions here -->
 					<excludes>
-						<exclude>com/abernathyclinic/drnote/property/**</exclude>
-						<exclude>com/abernathyclinic/drnote/model/**</exclude>
-						<exclude>com/abernathyclinic/drnote/AbernathyClinicDrnoteApplication*</exclude>
+						<exclude>com/abernathyclinic/drnote/property/*</exclude>
+						<exclude>com/abernathyclinic/drnote/model/*</exclude>
+						<exclude>com/abernathyclinic/drnote/AbernathyClinicDrNoteApplication*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
