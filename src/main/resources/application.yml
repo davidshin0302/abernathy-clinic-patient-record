@@ -1,7 +1,9 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://root:example@mongo:27017/drNotes?authSource=admin
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${MONGO_DATABASE:abernathy_clinic}
   application:
   name: abernathy-clinic-drnote
 #####################
