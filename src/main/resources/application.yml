@@ -1,9 +1,7 @@
 spring:
   data:
     mongodb:
-      host: localhost
-      port: 27017
-      database: abernathy_clinic_drnote
+      uri: ${SPRING_DATA_MONGODB_URI}
   application:
   name: abernathy-clinic-drnote
 #####################
@@ -17,3 +15,8 @@ management:
     web:
       exposure:
         include: health, info, metrics, httpexchanges
+#####################
+# Server Configuration
+#####################
+server:
+  port: 8082
