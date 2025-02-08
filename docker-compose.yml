@@ -1,24 +1,19 @@
-version: "3.9"  # Specify a version for docker-compose
-
 services:
   abernathy-clinic-drnote:
     build: .
     ports:
       - "8082:8082"
     depends_on:
-      - mongodb
+      - mongo
     environment:
-      MONGO_HOST: mongodb
-      MONGO_PORT: 27017
-      MONGO_DATABASE: abernathy_clinic
-    restart: always
+      SPRING_DATA_MONGODB_URI: mongodb://host.docker.internal:27017/abernathy_clinic
 
-  mongodb:
+  mongo:
     image: mongo:latest
     ports:
-      - "27017:27017" # This port mapping is for your HOST machine, not for container communication.
+      - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo-data:/data/db
 
 volumes:
-  mongo_data:
+  mongo-data:
