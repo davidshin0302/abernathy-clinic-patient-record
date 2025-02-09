@@ -1,12 +1,14 @@
 package com.abernathyclinic.drnote.controller;
 
 import com.abernathyclinic.drnote.model.DrNote;
+import com.abernathyclinic.drnote.model.DrNotesList;
 import com.abernathyclinic.drnote.repository.DrNoteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,12 +18,31 @@ import java.util.List;
 
 @Slf4j
 @Controller
-@RequestMapping("/patHistory/add")
+@RequestMapping("/patHistory")
 public class DrNoteController {
     @Autowired
     private DrNoteRepository drNoteRepository;
 
-    @PostMapping
+    @GetMapping("/get")
+    public ResponseEntity<DrNote> viewPatHistory(@RequestParam("patId") String patId) {
+        ResponseEntity<DrNote> responseEntity;
+        DrNote drNote;
+
+        if (drNoteRepository.findByPatId(patId) != null) {
+            drNote = drNoteRepository.findByPatId(patId);
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNote);
+
+            log.info("Get request handling... /patHistory/get");
+        } else {
+            log.warn("Unable to find the patId: {}", patId);
+
+            responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return responseEntity;
+    }
+
+    @PostMapping("/add")
     public ResponseEntity<DrNote> addPathHistory(@RequestParam("patId") String patId, @RequestParam("note") String note) {
         List<String> notes = new ArrayList<>();
         ResponseEntity<DrNote> responseEntity;
