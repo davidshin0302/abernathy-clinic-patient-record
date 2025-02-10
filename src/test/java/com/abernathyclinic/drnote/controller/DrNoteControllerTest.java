@@ -2,12 +2,11 @@ package com.abernathyclinic.drnote.controller;
 
 import com.abernathyclinic.drnote.model.DrNote;
 import com.abernathyclinic.drnote.repository.DrNoteRepository;
-import org.apache.coyote.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,6 +17,7 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +31,19 @@ class DrNoteControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    DrNote drNote;
+
+    @BeforeEach
+    void setUP() {
+        List<String> note = new ArrayList<>();
+        note.add("Hello from the Dr note");
+
+        drNote = DrNote.builder()
+                .id("33")
+                .notes(note)
+                .build();
+    }
+
     @Test
     void add_PathHistory() throws Exception {
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=1&note=Patient: TestNone Practitioner's notes/recommendations: Patient states that they are 'feeling terrific' Weight at or below recommended level"))
@@ -39,14 +52,6 @@ class DrNoteControllerTest {
 
     @Test
     void add_PathHistory_Existing_document() throws Exception {
-        List<String> note = new ArrayList<>();
-        note.add("Hello from the Dr note");
-
-        DrNote drNote = DrNote.builder()
-                .id("33")
-                .notes(note)
-                .build();
-
         when(drNoteRepository.findById(any(String.class))).thenReturn(Optional.of(drNote));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
@@ -61,6 +66,14 @@ class DrNoteControllerTest {
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=AA&note=#$$@%%%"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void view_patHistory() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(drNote);
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=33"))
+                .andExpect(status().isOk());
     }
 
 }
