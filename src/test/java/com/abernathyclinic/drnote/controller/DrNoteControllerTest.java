@@ -2,15 +2,18 @@ package com.abernathyclinic.drnote.controller;
 
 import com.abernathyclinic.drnote.model.DrNote;
 import com.abernathyclinic.drnote.repository.DrNoteRepository;
-import org.apache.coyote.Response;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +21,7 @@ import java.util.Optional;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,6 +34,25 @@ class DrNoteControllerTest {
     DrNoteController drNoteController;
     @Autowired
     MockMvc mockMvc;
+    @Autowired
+    ObjectMapper objectMapper;
+    DrNote drNote;
+    List<DrNote> drNoteList;
+
+    @BeforeEach
+    void setUP() throws IOException {
+        List<String> note = new ArrayList<>();
+        note.add("Hello from the Dr note");
+
+        drNote = DrNote.builder()
+                .patId("33")
+                .notes(note)
+                .build();
+
+        objectMapper = new ObjectMapper();
+        drNoteList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/drnote/resource/testDrNotes.json"), new TypeReference<List<DrNote>>() {
+        });
+    }
 
     @Test
     void add_PathHistory() throws Exception {
@@ -39,19 +62,11 @@ class DrNoteControllerTest {
 
     @Test
     void add_PathHistory_Existing_document() throws Exception {
-        List<String> note = new ArrayList<>();
-        note.add("Hello from the Dr note");
-
-        DrNote drNote = DrNote.builder()
-                .id("33")
-                .notes(note)
-                .build();
-
         when(drNoteRepository.findById(any(String.class))).thenReturn(Optional.of(drNote));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("33"))
+                .andExpect(jsonPath("$.patId").value("33"))
                 .andExpect(jsonPath("$.notes", hasSize(2)));
     }
 
@@ -63,4 +78,45 @@ class DrNoteControllerTest {
                 .andExpect(status().isInternalServerError());
     }
 
+    @Test
+    void view_patHistory() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(drNote);
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=33"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.patId").value(33));
+    }
+
+    @Test
+    void view_patHistory_not_found() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(null);
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=99999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void view_patHistory_exception() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=###$$"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void get_drnotes() throws Exception {
+        when(drNoteRepository.findAll()).thenReturn(drNoteList);
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(9)));
+    }
+
+    @Test
+    void get_drnotes_exception() throws Exception {
+        when(drNoteRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
+                .andExpect(status().isInternalServerError());
+    }
 }
