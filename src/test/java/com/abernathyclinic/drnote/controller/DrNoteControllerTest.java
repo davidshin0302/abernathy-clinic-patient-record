@@ -39,7 +39,7 @@ class DrNoteControllerTest {
         note.add("Hello from the Dr note");
 
         drNote = DrNote.builder()
-                .id("33")
+                .patId("33")
                 .notes(note)
                 .build();
     }
@@ -56,7 +56,7 @@ class DrNoteControllerTest {
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value("33"))
+                .andExpect(jsonPath("$.patId").value("33"))
                 .andExpect(jsonPath("$.notes", hasSize(2)));
     }
 
@@ -73,7 +73,23 @@ class DrNoteControllerTest {
         when(drNoteRepository.findByPatId(any(String.class))).thenReturn(drNote);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=33"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.patId").value(33));
     }
 
+    @Test
+    void view_patHistory_not_found() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(null);
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=99999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void view_patHistory_exception() throws Exception {
+        when(drNoteRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
+
+        mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=###$$"))
+                .andExpect(status().isInternalServerError());
+    }
 }

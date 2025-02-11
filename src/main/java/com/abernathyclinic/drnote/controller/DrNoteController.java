@@ -1,7 +1,6 @@
 package com.abernathyclinic.drnote.controller;
 
 import com.abernathyclinic.drnote.model.DrNote;
-import com.abernathyclinic.drnote.model.DrNotesList;
 import com.abernathyclinic.drnote.repository.DrNoteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,15 +27,22 @@ public class DrNoteController {
         ResponseEntity<DrNote> responseEntity;
         DrNote drNote;
 
-        if (drNoteRepository.findByPatId(patId) != null) {
-            drNote = drNoteRepository.findByPatId(patId);
-            responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNote);
+        try {
+            if (drNoteRepository.findByPatId(patId) != null) {
+                drNote = drNoteRepository.findByPatId(patId);
+                responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNote);
 
-            log.info("Get request handling... /patHistory/get");
-        } else {
-            log.warn("Unable to find the patId: {}", patId);
+                log.info("Get request handling... /patHistory/get");
+            } else {
+                log.info("Unable to find the patId: {}", patId);
 
-            responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (RuntimeException ex) {
+            log.error("Unable to fetch from Database with patID: {}", patId);
+            log.error(ex.getMessage());
+
+            responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return responseEntity;
