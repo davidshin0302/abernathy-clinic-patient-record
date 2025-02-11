@@ -109,7 +109,7 @@ class DrNoteControllerTest {
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(9)));
+                .andExpect(jsonPath("$.drNoteList", hasSize(9)));
     }
 
     @Test

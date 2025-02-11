@@ -1,6 +1,7 @@
 package com.abernathyclinic.drnote.controller;
 
 import com.abernathyclinic.drnote.model.DrNote;
+import com.abernathyclinic.drnote.model.DrNoteList;
 import com.abernathyclinic.drnote.repository.DrNoteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,12 +50,14 @@ public class DrNoteController {
     }
 
     @GetMapping("/get/drnotes")
-    public ResponseEntity<List<DrNote>> getDrNotes() {
-        ResponseEntity<List<DrNote>> responseEntity;
-        List<DrNote> drNotesList = new ArrayList<>();
+    public ResponseEntity<DrNoteList> getDrNotes() {
+        ResponseEntity<DrNoteList> responseEntity;
+        DrNoteList drNotesList = new DrNoteList();
 
         try {
-            drNotesList = drNoteRepository.findAll();
+            List<DrNote> fetchDrNotes = drNoteRepository.findAll();
+            drNotesList.setDrNoteList(fetchDrNotes);
+
             responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNotesList);
 
             log.info("Processing request handling /get/patids...");
