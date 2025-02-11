@@ -22,6 +22,26 @@ public class DrNoteController {
     @Autowired
     private DrNoteRepository drNoteRepository;
 
+    @GetMapping("/get/drnotes")
+    public ResponseEntity<List<DrNote>> getDrNotes() {
+        ResponseEntity<List<DrNote>> responseEntity;
+        List<DrNote> drNotesList = new ArrayList<>();
+
+        try {
+            drNotesList = drNoteRepository.findAll();
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNotesList);
+
+            log.info("Processing request handling /get/patids...");
+        } catch (RuntimeException ex) {
+            log.error("Unable to fetch Dr Notes from DB");
+            log.error(ex.getMessage());
+
+            responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return responseEntity;
+    }
+
     @GetMapping("/get")
     public ResponseEntity<DrNote> viewPatHistory(@RequestParam("patId") String patId) {
         ResponseEntity<DrNote> responseEntity;
