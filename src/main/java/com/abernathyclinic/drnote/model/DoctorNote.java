@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "drNotes")
-public class DrNote {
+public class DoctorNote {
     @Id
     private String id;
     private String patId;

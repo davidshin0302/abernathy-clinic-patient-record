@@ -1,8 +1,8 @@
 package com.abernathyclinic.drnote.controller;
 
-import com.abernathyclinic.drnote.model.DrNote;
-import com.abernathyclinic.drnote.model.DrNoteList;
-import com.abernathyclinic.drnote.repository.DrNoteRepository;
+import com.abernathyclinic.drnote.model.DoctorNote;
+import com.abernathyclinic.drnote.model.DoctorNotes;
+import com.abernathyclinic.drnote.repository.DoctorNoteRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,19 +19,19 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping("/patHistory")
-public class DrNoteController {
+public class DoctorNoteController {
     @Autowired
-    private DrNoteRepository drNoteRepository;
+    private DoctorNoteRepository doctorNoteRepository;
 
     @GetMapping("/get")
-    public ResponseEntity<DrNote> viewPatHistory(@RequestParam("patId") String patId) {
-        ResponseEntity<DrNote> responseEntity;
-        DrNote drNote;
+    public ResponseEntity<DoctorNote> viewPatHistory(@RequestParam("patId") String patId) {
+        ResponseEntity<DoctorNote> responseEntity;
+        DoctorNote doctorNote;
 
         try {
-            if (drNoteRepository.findByPatId(patId) != null) {
-                drNote = drNoteRepository.findByPatId(patId);
-                responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNote);
+            if (doctorNoteRepository.findByPatId(patId) != null) {
+                doctorNote = doctorNoteRepository.findByPatId(patId);
+                responseEntity = ResponseEntity.status(HttpStatus.OK).body(doctorNote);
 
                 log.info("Get request handling... /patHistory/get");
             } else {
@@ -49,16 +49,16 @@ public class DrNoteController {
         return responseEntity;
     }
 
-    @GetMapping("/get/drnotes")
-    public ResponseEntity<DrNoteList> getDrNotes() {
-        ResponseEntity<DrNoteList> responseEntity;
-        DrNoteList drNotesList = new DrNoteList();
+    @GetMapping("/get/doctornotes")
+    public ResponseEntity<DoctorNotes> getDoctorNotes() {
+        ResponseEntity<DoctorNotes> responseEntity;
+        DoctorNotes doctorNotes = new DoctorNotes();
 
         try {
-            List<DrNote> fetchDrNotes = drNoteRepository.findAll();
-            drNotesList.setDrNoteList(fetchDrNotes);
+            List<DoctorNote> fetchDoctorNotes = doctorNoteRepository.findAll();
+            doctorNotes.setDoctorNotes(fetchDoctorNotes);
 
-            responseEntity = ResponseEntity.status(HttpStatus.OK).body(drNotesList);
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(doctorNotes);
 
             log.info("Processing request handling /get/patids...");
         } catch (RuntimeException ex) {
@@ -72,31 +72,31 @@ public class DrNoteController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<DrNote> addPathHistory(@RequestParam("patId") String patId, @RequestParam("note") String note) {
+    public ResponseEntity<DoctorNote> addPathHistory(@RequestParam("patId") String patId, @RequestParam("note") String note) {
         List<String> notes = new ArrayList<>();
-        ResponseEntity<DrNote> responseEntity;
-        DrNote drNote;
+        ResponseEntity<DoctorNote> responseEntity;
+        DoctorNote doctorNote;
 
         log.info("Post request handling.../patHistory/add");
 
-        if (drNoteRepository.findById(patId).isPresent()) {
-            drNote = drNoteRepository.findById(patId).get();
+        if (doctorNoteRepository.findByPatId(patId) != null) {
+            doctorNote = doctorNoteRepository.findByPatId(patId);
         } else {
-            drNote = DrNote.builder()
+            doctorNote = DoctorNote.builder()
                     .patId(patId)
                     .notes(notes)
                     .build();
         }
 
         try {
-            drNote.addNote(note);
-            drNoteRepository.save(drNote);
+            doctorNote.addNote(note);
+            doctorNoteRepository.save(doctorNote);
 
-            responseEntity = ResponseEntity.status(HttpStatus.CREATED).body(drNote);
+            responseEntity = ResponseEntity.status(HttpStatus.CREATED).body(doctorNote);
 
-            log.info("Saved drNote: {}", drNote);
+            log.info("Saved drNote: {}", doctorNote);
         } catch (RuntimeException ex) {
-            log.error("Unable to saved Dr Note: {}", drNote);
+            log.error("Unable to saved Dr Note: {}", doctorNote);
             log.error(ex.getMessage());
 
             responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

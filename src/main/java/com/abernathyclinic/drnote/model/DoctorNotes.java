@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DrNoteList {
-    List<DrNote> drNoteList;
+public class DoctorNotes {
+    List<DoctorNote> doctorNotes;
 }
