@@ -103,19 +103,19 @@ class DoctorNoteControllerTest {
     }
 
     @Test
-    void get_drnotes() throws Exception {
+    void get_doctorNotes() throws Exception {
         when(doctorNoteRepository.findAll()).thenReturn(doctorNoteList);
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.doctorNotes", hasSize(9)));
     }
 
     @Test
-    void get_drnotes_exception() throws Exception {
+    void get_get_doctorNotes_exception() throws Exception {
         when(doctorNoteRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
                 .andExpect(status().isInternalServerError());
     }
 }
