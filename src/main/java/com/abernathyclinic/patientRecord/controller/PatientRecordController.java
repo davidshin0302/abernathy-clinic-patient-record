@@ -49,8 +49,8 @@ public class PatientRecordController {
         return responseEntity;
     }
 
-    @GetMapping("/get/doctornotes")
-    public ResponseEntity<PatientRecords> getDoctorNotes() {
+    @GetMapping("/get/patient-records")
+    public ResponseEntity<PatientRecords> getPatientRecords() {
         ResponseEntity<PatientRecords> responseEntity;
         PatientRecords patientRecords = new PatientRecords();
 
