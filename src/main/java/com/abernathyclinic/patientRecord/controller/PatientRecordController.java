@@ -82,11 +82,6 @@ public class PatientRecordController {
         if (patientRecordRepository.findByPatId(patId) != null) {
             patientRecord = patientRecordRepository.findByPatId(patId);
         } else {
-            ClinicalNote clinicalNote = ClinicalNote.builder()
-                    .date(LocalDate.now())
-                    .note(newNote)
-                    .build();
-
             patientRecord = PatientRecord.builder()
                     .patId(patId)
                     .clinicalNotes(clinicalNotes)
@@ -94,7 +89,12 @@ public class PatientRecordController {
         }
 
         try {
+            ClinicalNote clinicalNote = ClinicalNote.builder()
+                    .date(LocalDate.now())
+                    .note(newNote)
+                    .build();
 
+            patientRecord.addNote(clinicalNote);
             patientRecordRepository.save(patientRecord);
 
             responseEntity = ResponseEntity.status(HttpStatus.CREATED).body(patientRecord);

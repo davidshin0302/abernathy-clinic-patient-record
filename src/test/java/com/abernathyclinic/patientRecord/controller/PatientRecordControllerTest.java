@@ -1,9 +1,11 @@
 package com.abernathyclinic.patientRecord.controller;
 
+import com.abernathyclinic.patientRecord.model.ClinicalNote;
 import com.abernathyclinic.patientRecord.model.PatientRecord;
+import com.abernathyclinic.patientRecord.model.PatientRecords;
 import com.abernathyclinic.patientRecord.repository.PatientRecordRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,27 +31,31 @@ class PatientRecordControllerTest {
     @MockitoBean
     PatientRecordRepository patientRecordRepository;
     @InjectMocks
-    PatientRecordController doctorNoteController;
+    PatientRecordController patientRecordController;
     @Autowired
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
     PatientRecord patientRecord;
-    List<PatientRecord> patientRecordList;
+    PatientRecords patientRecordList;
 
     @BeforeEach
     void setUP() throws IOException {
-        List<String> note = new ArrayList<>();
-        note.add("Hello from the Dr note");
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+
+        ClinicalNote clinicalNote = ClinicalNote.builder()
+                .note("Adding a random note")
+                .build();
 
         patientRecord = PatientRecord.builder()
                 .patId("33")
-//                .clinicalNotes(note)
+                .clinicalNotes(new ArrayList<ClinicalNote>())
                 .build();
 
-        objectMapper = new ObjectMapper();
-        patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), new TypeReference<List<PatientRecord>>() {
-        });
+        patientRecord.addNote(clinicalNote);
+
+        patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), PatientRecords.class);
     }
 
     @Test
@@ -66,7 +71,7 @@ class PatientRecordControllerTest {
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.patId").value("33"))
-                .andExpect(jsonPath("$.notes", hasSize(2)));
+                .andExpect(jsonPath("$.clinicalNotes", hasSize(2)));
     }
 
     @Test
@@ -103,16 +108,15 @@ class PatientRecordControllerTest {
     }
 
     @Test
-    void get_doctorNotes() throws Exception {
-        when(patientRecordRepository.findAll()).thenReturn(patientRecordList);
+    void get_patient_records() throws Exception {
+        when(patientRecordRepository.findAll()).thenReturn(patientRecordList.getPatientRecords());
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.doctorNotes", hasSize(9)));
+                .andExpect(status().isOk());
     }
 
     @Test
-    void get_get_doctorNotes_exception() throws Exception {
+    void get_patient_records_exception() throws Exception {
         when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))

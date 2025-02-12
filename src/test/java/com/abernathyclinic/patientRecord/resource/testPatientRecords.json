@@ -1,65 +1,64 @@
-[
-  {
-    "id": "67aa56e3cede84450bd9c15c",
-    "patId": "1",
-    "notes": [
-      "Patient: TestNone Practitioner's notes/recommendations: Patient states that they are 'feeling terrific' Weight at or below recommended level"
-    ]
-  },
-  {
-    "id": "67aa56edcede84450bd9c15d",
-    "patId": "2",
-    "notes": [
-      "Patient: TestBorderline Practitioner's notes/recommendations: Patient states that they are feeling a great deal of stress at work Patient also complains that their hearing seems Abnormal as of late"
-    ]
-  },
-  {
-    "id": "67aa56f0cede84450bd9c15e",
-    "patId": "2",
-    "notes": [
-      "Patient: TestBorderline Practitioner's notes/recommendations: Patient states that they have had a Reaction to medication within last 3 months Patient also complains that their hearing continues to be problematic"
-    ]
-  },
-  {
-    "id": "67aa56f3cede84450bd9c15f",
-    "patId": "3",
-    "notes": [
-      "Patient: TestInDanger Practitioner's notes/recommendations: Patient states that they are short term Smoker"
-    ]
-  },
-  {
-    "id": "67aa56f6cede84450bd9c160",
-    "patId": "3",
-    "notes": [
-      "Patient: TestInDanger Practitioner's notes/recommendations: Patient states that they quit within last year Patient also complains that of Abnormal breathing spells Lab reports Cholesterol LDL high"
-    ]
-  },
-  {
-    "id": "67aa56f8cede84450bd9c161",
-    "patId": "4",
-    "notes": [
-      "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that walking up stairs has become difficult Patient also complains that they are having shortness of breath Lab results indicate Antibodies present elevated Reaction to medication"
-    ]
-  },
-  {
-    "id": "67aa56fccede84450bd9c162",
-    "patId": "4",
-    "notes": [
-      "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that they are experiencing back pain when seated for a long time"
-    ]
-  },
-  {
-    "id": "67aa56fecede84450bd9c163",
-    "patId": "4",
-    "notes": [
-      "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that they are a short term Smoker Hemoglobin A1C above recommended level"
-    ]
-  },
-  {
-    "id": "67aa5700cede84450bd9c164",
-    "patId": "4",
-    "notes": [
-      "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient"
-    ]
-  }
-]
+{
+  "patientRecords": [
+    {
+      "id": "67acfcb1c1583e733aeca572",
+      "patId": "1",
+      "clinicalNotes": [
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestNone Practitioner's notes/recommendations: Patient states that they are 'feeling terrific' Weight at or below recommended level"
+        }
+      ]
+    },
+    {
+      "id": "67acfcbbc1583e733aeca573",
+      "patId": "2",
+      "clinicalNotes": [
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestBorderline Practitioner's notes/recommendations: Patient states that they are feeling a great deal of stress at work Patient also complains that their hearing seems Abnormal as of late"
+        },
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestBorderline Practitioner's notes/recommendations: Patient states that they have had a Reaction to medication within last 3 months Patient also complains that their hearing continues to be problematic"
+        }
+      ]
+    },
+    {
+      "id": "67acfcc0c1583e733aeca574",
+      "patId": "3",
+      "clinicalNotes": [
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestInDanger Practitioner's notes/recommendations: Patient states that they are short term Smoker"
+        },
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestInDanger Practitioner's notes/recommendations: Patient states that they quit within last year Patient also complains that of Abnormal breathing spells Lab reports Cholesterol LDL high"
+        }
+      ]
+    },
+    {
+      "id": "67acfcc6c1583e733aeca575",
+      "patId": "4",
+      "clinicalNotes": [
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that walking up stairs has become difficult Patient also complains that they are having shortness of breath Lab results indicate Antibodies present elevated Reaction to medication"
+        },
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that they are experiencing back pain when seated for a long time"
+        },
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient states that they are a short term Smoker Hemoglobin A1C above recommended level"
+        },
+        {
+          "date": "2025-02-12",
+          "note": "Patient: TestEarlyOnset Practitioner's notes/recommendations: Patient"
+        }
+      ]
+    }
+  ]
+}
