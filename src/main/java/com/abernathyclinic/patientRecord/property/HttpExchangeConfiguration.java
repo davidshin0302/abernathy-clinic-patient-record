@@ -1,4 +1,4 @@
-package com.abernathyclinic.drnote.property;
+package com.abernathyclinic.patientRecord.property;
 
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;

@@ -1,9 +1,9 @@
 spring:
   data:
-#    mongodb:
-#      uri: ${SPRING_DATA_MONGODB_URI | abernathy_clinic}
+    mongo:
+      uri: ${SPRING_DATA_MONGODB_URI | abernathy_clinic}
   application:
-  name: abernathy-clinic-drnote
+  name: abernathy-clinic-patientRecord
 #####################
 # Actuator Configuration
 #####################
