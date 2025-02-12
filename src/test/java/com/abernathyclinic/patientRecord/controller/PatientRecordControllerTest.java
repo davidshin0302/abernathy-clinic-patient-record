@@ -1,7 +1,7 @@
-package com.abernathyclinic.drnote.controller;
+package com.abernathyclinic.patientRecord.controller;
 
-import com.abernathyclinic.drnote.model.DoctorNote;
-import com.abernathyclinic.drnote.repository.DoctorNoteRepository;
+import com.abernathyclinic.patientRecord.model.PatientRecord;
+import com.abernathyclinic.patientRecord.repository.PatientRecordRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,31 +25,31 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(DoctorNoteController.class)
-class DoctorNoteControllerTest {
+@WebMvcTest(PatientRecordController.class)
+class PatientRecordControllerTest {
     @MockitoBean
-    DoctorNoteRepository doctorNoteRepository;
+    PatientRecordRepository patientRecordRepository;
     @InjectMocks
-    DoctorNoteController doctorNoteController;
+    PatientRecordController doctorNoteController;
     @Autowired
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
-    DoctorNote doctorNote;
-    List<DoctorNote> doctorNoteList;
+    PatientRecord patientRecord;
+    List<PatientRecord> patientRecordList;
 
     @BeforeEach
     void setUP() throws IOException {
         List<String> note = new ArrayList<>();
         note.add("Hello from the Dr note");
 
-        doctorNote = DoctorNote.builder()
+        patientRecord = PatientRecord.builder()
                 .patId("33")
-                .notes(note)
+//                .clinicalNotes(note)
                 .build();
 
         objectMapper = new ObjectMapper();
-        doctorNoteList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/drnote/resource/testDrNotes.json"), new TypeReference<List<DoctorNote>>() {
+        patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), new TypeReference<List<PatientRecord>>() {
         });
     }
 
@@ -61,7 +61,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void add_PathHistory_Existing_document() throws Exception {
-        when(doctorNoteRepository.findByPatId(any(String.class))).thenReturn((doctorNote));
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn((patientRecord));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
                 .andExpect(status().isCreated())
@@ -71,7 +71,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void runtime_exception_add_pathHistory() throws Exception {
-        when(doctorNoteRepository.save(any(DoctorNote.class))).thenThrow(new RuntimeException("Bad Request"));
+        when(patientRecordRepository.save(any(PatientRecord.class))).thenThrow(new RuntimeException("Bad Request"));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=AA&note=#$$@%%%"))
                 .andExpect(status().isInternalServerError());
@@ -79,7 +79,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void view_patHistory() throws Exception {
-        when(doctorNoteRepository.findByPatId(any(String.class))).thenReturn(doctorNote);
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(patientRecord);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=33"))
                 .andExpect(status().isOk())
@@ -88,7 +88,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void view_patHistory_not_found() throws Exception {
-        when(doctorNoteRepository.findByPatId(any(String.class))).thenReturn(null);
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(null);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=99999"))
                 .andExpect(status().isNotFound());
@@ -96,7 +96,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void view_patHistory_exception() throws Exception {
-        when(doctorNoteRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
+        when(patientRecordRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=###$$"))
                 .andExpect(status().isInternalServerError());
@@ -104,7 +104,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void get_doctorNotes() throws Exception {
-        when(doctorNoteRepository.findAll()).thenReturn(doctorNoteList);
+        when(patientRecordRepository.findAll()).thenReturn(patientRecordList);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
                 .andExpect(status().isOk())
@@ -113,7 +113,7 @@ class DoctorNoteControllerTest {
 
     @Test
     void get_get_doctorNotes_exception() throws Exception {
-        when(doctorNoteRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
+        when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
                 .andExpect(status().isInternalServerError());

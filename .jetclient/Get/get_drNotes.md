@@ -1,5 +1,5 @@
 ```toml
-name = 'get_drNotes'
+name = 'get_patientRecords'
 method = 'GET'
 url = 'http://localhost:8082/patHistory/get/doctornotes'
 sortWeight = 2000000

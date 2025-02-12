@@ -1,5 +1,5 @@
 services:
-  abernathy-clinic-drnote:
+  abernathy-clinic-patientRecord:
     build: .
     ports:
       - "8082:8082"

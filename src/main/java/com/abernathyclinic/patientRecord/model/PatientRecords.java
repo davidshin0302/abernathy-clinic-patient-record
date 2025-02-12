@@ -1,4 +1,4 @@
-package com.abernathyclinic.drnote.model;
+package com.abernathyclinic.patientRecord.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DoctorNotes {
-    List<DoctorNote> doctorNotes;
+public class PatientRecords {
+    List<PatientRecord> patientRecords;
 }
