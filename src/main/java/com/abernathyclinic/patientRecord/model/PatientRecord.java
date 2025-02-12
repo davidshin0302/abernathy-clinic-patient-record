@@ -1,4 +1,4 @@
-package com.abernathyclinic.drnote.model;
+package com.abernathyclinic.patientRecord.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,14 +13,14 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "drNotes")
-public class DrNote {
+@Document(collection = "patient-records")
+public class PatientRecord {
     @Id
     private String id;
     private String patId;
-    private List<String> notes;
+    private List<ClinicalNote> clinicalNotes;
 
-    public void addNote(String note){
-        this.notes.add(note);
+    public void addNote(ClinicalNote clinicalNote) {
+        this.clinicalNotes.add(clinicalNote);
     }
 }

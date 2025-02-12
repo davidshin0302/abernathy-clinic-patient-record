@@ -1,12 +1,12 @@
 services:
-  abernathy-clinic-drnote:
+  abernathy-clinic-patientRecord:
     build: .
     ports:
       - "8082:8082"
     depends_on:
       - mongo
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://host.docker.internal:27017/abernathy_clinic
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/abernathy_clinic
 
   mongo:
     image: mongo:latest

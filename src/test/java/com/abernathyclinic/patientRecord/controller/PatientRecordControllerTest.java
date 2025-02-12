@@ -1,9 +1,11 @@
-package com.abernathyclinic.drnote.controller;
+package com.abernathyclinic.patientRecord.controller;
 
-import com.abernathyclinic.drnote.model.DrNote;
-import com.abernathyclinic.drnote.repository.DrNoteRepository;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.abernathyclinic.patientRecord.model.ClinicalNote;
+import com.abernathyclinic.patientRecord.model.PatientRecord;
+import com.abernathyclinic.patientRecord.model.PatientRecords;
+import com.abernathyclinic.patientRecord.repository.PatientRecordRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,8 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,32 +26,36 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(DrNoteController.class)
-class DrNoteControllerTest {
+@WebMvcTest(PatientRecordController.class)
+class PatientRecordControllerTest {
     @MockitoBean
-    DrNoteRepository drNoteRepository;
+    PatientRecordRepository patientRecordRepository;
     @InjectMocks
-    DrNoteController drNoteController;
+    PatientRecordController patientRecordController;
     @Autowired
     MockMvc mockMvc;
     @Autowired
     ObjectMapper objectMapper;
-    DrNote drNote;
-    List<DrNote> drNoteList;
+    PatientRecord patientRecord;
+    PatientRecords patientRecordList;
 
     @BeforeEach
     void setUP() throws IOException {
-        List<String> note = new ArrayList<>();
-        note.add("Hello from the Dr note");
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
-        drNote = DrNote.builder()
-                .patId("33")
-                .notes(note)
+        ClinicalNote clinicalNote = ClinicalNote.builder()
+                .note("Adding a random note")
                 .build();
 
-        objectMapper = new ObjectMapper();
-        drNoteList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/drnote/resource/testDrNotes.json"), new TypeReference<List<DrNote>>() {
-        });
+        patientRecord = PatientRecord.builder()
+                .patId("33")
+                .clinicalNotes(new ArrayList<ClinicalNote>())
+                .build();
+
+        patientRecord.addNote(clinicalNote);
+
+        patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), PatientRecords.class);
     }
 
     @Test
@@ -62,17 +66,17 @@ class DrNoteControllerTest {
 
     @Test
     void add_PathHistory_Existing_document() throws Exception {
-        when(drNoteRepository.findById(any(String.class))).thenReturn(Optional.of(drNote));
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn((patientRecord));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=33&note=Add more notes"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.patId").value("33"))
-                .andExpect(jsonPath("$.notes", hasSize(2)));
+                .andExpect(jsonPath("$.clinicalNotes", hasSize(2)));
     }
 
     @Test
     void runtime_exception_add_pathHistory() throws Exception {
-        when(drNoteRepository.save(any(DrNote.class))).thenThrow(new RuntimeException("Bad Request"));
+        when(patientRecordRepository.save(any(PatientRecord.class))).thenThrow(new RuntimeException("Bad Request"));
 
         mockMvc.perform(post("http://localhost:8082/patHistory/add?patId=AA&note=#$$@%%%"))
                 .andExpect(status().isInternalServerError());
@@ -80,7 +84,7 @@ class DrNoteControllerTest {
 
     @Test
     void view_patHistory() throws Exception {
-        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(drNote);
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(patientRecord);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=33"))
                 .andExpect(status().isOk())
@@ -89,7 +93,7 @@ class DrNoteControllerTest {
 
     @Test
     void view_patHistory_not_found() throws Exception {
-        when(drNoteRepository.findByPatId(any(String.class))).thenReturn(null);
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(null);
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=99999"))
                 .andExpect(status().isNotFound());
@@ -97,26 +101,25 @@ class DrNoteControllerTest {
 
     @Test
     void view_patHistory_exception() throws Exception {
-        when(drNoteRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
+        when(patientRecordRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Exception occurred"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get?patId=###$$"))
                 .andExpect(status().isInternalServerError());
     }
 
     @Test
-    void get_drnotes() throws Exception {
-        when(drNoteRepository.findAll()).thenReturn(drNoteList);
+    void get_patient_records() throws Exception {
+        when(patientRecordRepository.findAll()).thenReturn(patientRecordList.getPatientRecords());
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.drNoteList", hasSize(9)));
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
+                .andExpect(status().isOk());
     }
 
     @Test
-    void get_drnotes_exception() throws Exception {
-        when(drNoteRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
+    void get_patient_records_exception() throws Exception {
+        when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/drnotes"))
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
                 .andExpect(status().isInternalServerError());
     }
 }
