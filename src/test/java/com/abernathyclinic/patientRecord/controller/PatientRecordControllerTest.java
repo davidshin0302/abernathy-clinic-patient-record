@@ -111,7 +111,7 @@ class PatientRecordControllerTest {
     void get_patient_records() throws Exception {
         when(patientRecordRepository.findAll()).thenReturn(patientRecordList.getPatientRecords());
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/patient-records"))
                 .andExpect(status().isOk());
     }
 
@@ -119,7 +119,7 @@ class PatientRecordControllerTest {
     void get_patient_records_exception() throws Exception {
         when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
-        mockMvc.perform(get("http://localhost:8082/patHistory/get/doctornotes"))
+        mockMvc.perform(get("http://localhost:8082/patHistory/get/patient-records"))
                 .andExpect(status().isInternalServerError());
     }
 }
