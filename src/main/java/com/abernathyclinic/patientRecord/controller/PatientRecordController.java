@@ -15,6 +15,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * REST controller for managing patient records.
+ * This class handles requests related to viewing, retrieving, and adding patient history.
+ */
 @Slf4j
 @Controller
 @RequestMapping("/patHistory")
@@ -23,6 +27,12 @@ public class PatientRecordController {
     @Autowired
     private PatientRecordRepository patientRecordRepository;
 
+    /**
+     * Retrieves a patient's record based on their patient ID.
+     *
+     * @param patId The patient ID to search for.
+     * @return A ResponseEntity containing the PatientRecord if found, or a 404 Not Found status if not.  Returns a 500 Internal Server Error if a database error occurs.
+     */
     @GetMapping("/get")
     public ResponseEntity<PatientRecord> viewPatHistory(@RequestParam("patId") String patId) {
         ResponseEntity<PatientRecord> responseEntity;
@@ -49,6 +59,11 @@ public class PatientRecordController {
         return responseEntity;
     }
 
+    /**
+     * Retrieves all patient records.
+     *
+     * @return A ResponseEntity containing a list of all PatientRecords, or a 500 Internal Server Error if a database error occurs.
+     */
     @GetMapping("/get/patient-records")
     public ResponseEntity<PatientRecords> getPatientRecords() {
         ResponseEntity<PatientRecords> responseEntity;
@@ -71,6 +86,13 @@ public class PatientRecordController {
         return responseEntity;
     }
 
+    /**
+     * Adds a new clinical note to a patient's record.  Creates a new patient record if one doesn't already exist for the given patId.
+     *
+     * @param patId   The patient ID to add the note to.
+     * @param newNote The new clinical note to add.
+     * @return A ResponseEntity containing the updated PatientRecord, or a 500 Internal Server Error if a database error occurs. Returns a 201 Created status upon successful creation/update.
+     */
     @PostMapping("/add")
     public ResponseEntity<PatientRecord> addPathHistory(@RequestParam("patId") String patId, @RequestParam("note") String newNote) {
         List<ClinicalNote> clinicalNotes = new ArrayList<>();
