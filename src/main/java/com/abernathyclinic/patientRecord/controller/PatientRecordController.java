@@ -133,27 +133,31 @@ public class PatientRecordController {
     }
 
     @PutMapping("/update/{patId}")
-    public ResponseEntity<PatientRecord> updatePatientRecord(@PathVariable String patId, @RequestParam String updatedRecord, @RequestParam String recordDate) {
+    public ResponseEntity<PatientRecord> updatePatientRecord(@PathVariable("patId") String updatePatId, @RequestParam("index") String updateIndex, @RequestParam("note") String updatedRecord) {
         ResponseEntity<PatientRecord> responseEntity;
         PatientRecord patientRecord;
 
+        log.info("put request handling.../update/ {}", updatePatId);
+
         try {
-            patientRecord = patientRecordRepository.findByPatId(patId);
-            ClinicalNote clinicalNote = patientRecord.getClinicalNotes().stream().filter(note -> note.getDate().toString().equalsIgnoreCase(recordDate)).findFirst().orElse(null);
+            int index = Integer.parseInt(updateIndex);
+            patientRecord = patientRecordRepository.findByPatId(updatePatId);
+            ClinicalNote clinicalNote = patientRecord.getClinicalNotes().get(index);
 
+            clinicalNote.setNote(updatedRecord);
+            patientRecord.updateClinicalNote(index, clinicalNote);
+            patientRecordRepository.save(patientRecord);
 
-            if(clinicalNote != null){
-                int index = patientRecord.getClinicalNotes().indexOf(clinicalNote);
+            responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecord);
 
-                clinicalNote.setNote(updatedRecord);
-//                patientRecord.updateClinicalNote(index, clinicalNote);
-            }
+            log.info("Updated patient record successfully");
         } catch (RuntimeException ex) {
-            log.error("Unable to update patient record, patId:{}", patId);
+            log.error("Unable to update patient record, patId:{}", updatePatId);
             log.error(ex.getMessage());
 
             responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
+        return responseEntity;
     }
 }
