@@ -164,7 +164,7 @@ public class PatientRecordController {
                 responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecord);
                 log.info("Updated patient record successfully");
             } else {
-                responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
                 log.info("Unable to find the patient from the recrod, patId:{}", updatePatId);
             }
 
