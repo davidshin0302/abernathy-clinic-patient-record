@@ -132,6 +132,17 @@ public class PatientRecordController {
         return responseEntity;
     }
 
+    /**
+     * Updates a specific clinical note within a patient's record.
+     *
+     * @param updatePatId The patient ID whose record will be updated.
+     * @param updateIndex The index of the clinical note to be updated (0-based).
+     * @param updatedRecord The updated clinical note text.
+     * @return A ResponseEntity containing the updated PatientRecord if successful,
+     *         a 404 Not Found status if the patient record or note is not found,
+     *         or a 500 Internal Server Error if a database error or other exception occurs.
+     *         Returns a 200 OK status upon successful update.
+     */
     @PutMapping("/update/{patId}")
     public ResponseEntity<PatientRecord> updatePatientRecord(@PathVariable("patId") String updatePatId, @RequestParam("index") String updateIndex, @RequestParam("note") String updatedRecord) {
         ResponseEntity<PatientRecord> responseEntity;
@@ -142,15 +153,21 @@ public class PatientRecordController {
         try {
             int index = Integer.parseInt(updateIndex);
             patientRecord = patientRecordRepository.findByPatId(updatePatId);
-            ClinicalNote clinicalNote = patientRecord.getClinicalNotes().get(index);
 
-            clinicalNote.setNote(updatedRecord);
-            patientRecord.updateClinicalNote(index, clinicalNote);
-            patientRecordRepository.save(patientRecord);
+            if (patientRecord != null) {
+                ClinicalNote clinicalNote = patientRecord.getClinicalNotes().get(index);
 
-            responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecord);
+                clinicalNote.setNote(updatedRecord);
+                patientRecord.updateClinicalNote(index, clinicalNote);
+                patientRecordRepository.save(patientRecord);
 
-            log.info("Updated patient record successfully");
+                responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecord);
+                log.info("Updated patient record successfully");
+            } else {
+                responseEntity = ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+                log.info("Unable to find the patient from the recrod, patId:{}", patientRecord);
+            }
+
         } catch (RuntimeException ex) {
             log.error("Unable to update patient record, patId:{}", updatePatId);
             log.error(ex.getMessage());

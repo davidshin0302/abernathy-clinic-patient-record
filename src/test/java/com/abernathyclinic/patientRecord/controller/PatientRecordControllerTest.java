@@ -16,13 +16,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +53,7 @@ class PatientRecordControllerTest {
                 .clinicalNotes(new ArrayList<ClinicalNote>())
                 .build();
 
-        patientRecord.addNote(clinicalNote);
+        patientRecord.addClinicalNote(clinicalNote);
 
         patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), PatientRecords.class);
     }
@@ -120,6 +120,45 @@ class PatientRecordControllerTest {
         when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/patient-records"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void update_patient_record() throws Exception {
+        PatientRecord updatePatientRecord = PatientRecord.builder()
+                .patId("1")
+                .clinicalNotes(new ArrayList<ClinicalNote>())
+                .build();
+
+        ClinicalNote clinicalNote = ClinicalNote.builder()
+                .date(LocalDate.parse("2025-02-18"))
+                .note("original note")
+                .build();
+
+        updatePatientRecord.addClinicalNote(clinicalNote);
+
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(updatePatientRecord);
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/1?patId=1&index=0&note=update note"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.patId").value("1"))
+                .andExpect(jsonPath("$.clinicalNotes[0].note").value("update note"))
+                .andExpect(jsonPath("$.clinicalNotes[0].date").value("2025-02-18"));
+    }
+
+    @Test
+    void update_patient_record_not_found() throws Exception {
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(null);
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/1?patId=999&index=999&note=Non Existing"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void update_patient_record_exception() throws Exception {
+        when(patientRecordRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Runtime Exception"));
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/1?patId=1&index=0&note=run time exception"))
                 .andExpect(status().isInternalServerError());
     }
 }
