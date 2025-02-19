@@ -20,7 +20,12 @@ public class PatientRecord {
     private String patId;
     private List<ClinicalNote> clinicalNotes;
 
-    public void addNote(ClinicalNote clinicalNote) {
+    public void addClinicalNote(ClinicalNote clinicalNote) {
         this.clinicalNotes.add(clinicalNote);
     }
+
+    public void updateClinicalNote(int index, ClinicalNote clinicalNote) {
+        this.clinicalNotes.set(index, clinicalNote);
+    }
+
 }
