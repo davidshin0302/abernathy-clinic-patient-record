@@ -116,7 +116,7 @@ public class PatientRecordController {
                     .note(newNote)
                     .build();
 
-            patientRecord.addNote(clinicalNote);
+            patientRecord.addClinicalNote(clinicalNote);
             patientRecordRepository.save(patientRecord);
 
             responseEntity = ResponseEntity.status(HttpStatus.CREATED).body(patientRecord);
@@ -130,5 +130,30 @@ public class PatientRecordController {
         }
 
         return responseEntity;
+    }
+
+    @PutMapping("/update/{patId}")
+    public ResponseEntity<PatientRecord> updatePatientRecord(@PathVariable String patId, @RequestParam String updatedRecord, @RequestParam String recordDate) {
+        ResponseEntity<PatientRecord> responseEntity;
+        PatientRecord patientRecord;
+
+        try {
+            patientRecord = patientRecordRepository.findByPatId(patId);
+            ClinicalNote clinicalNote = patientRecord.getClinicalNotes().stream().filter(note -> note.getDate().toString().equalsIgnoreCase(recordDate)).findFirst().orElse(null);
+
+
+            if(clinicalNote != null){
+                int index = patientRecord.getClinicalNotes().indexOf(clinicalNote);
+
+                clinicalNote.setNote(updatedRecord);
+//                patientRecord.updateClinicalNote(index, clinicalNote);
+            }
+        } catch (RuntimeException ex) {
+            log.error("Unable to update patient record, patId:{}", patId);
+            log.error(ex.getMessage());
+
+            responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
     }
 }
