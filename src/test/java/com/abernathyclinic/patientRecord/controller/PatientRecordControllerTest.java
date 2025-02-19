@@ -11,18 +11,19 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,7 +54,7 @@ class PatientRecordControllerTest {
                 .clinicalNotes(new ArrayList<ClinicalNote>())
                 .build();
 
-        patientRecord.addNote(clinicalNote);
+        patientRecord.addClinicalNote(clinicalNote);
 
         patientRecordList = objectMapper.readValue(new File("src/test/java/com/abernathyclinic/patientRecord/resource/testPatientRecords.json"), PatientRecords.class);
     }
@@ -120,6 +121,63 @@ class PatientRecordControllerTest {
         when(patientRecordRepository.findAll()).thenThrow(new RuntimeException("Error while running the applications"));
 
         mockMvc.perform(get("http://localhost:8082/patHistory/get/patient-records"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void update_patient_record() throws Exception {
+        PatientRecord updatePatientRecord = PatientRecord.builder()
+                .patId("1")
+                .clinicalNotes(new ArrayList<ClinicalNote>())
+                .build();
+
+        ClinicalNote clinicalNote = ClinicalNote.builder()
+                .date(LocalDate.parse("2025-02-18"))
+                .note("original note")
+                .build();
+
+        updatePatientRecord.addClinicalNote(clinicalNote);
+
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(updatePatientRecord);
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/1?index=0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatePatientRecord)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.patId").value("1"));
+    }
+
+    @Test
+    void update_patient_record_not_found() throws Exception {
+        when(patientRecordRepository.findByPatId(any(String.class))).thenReturn(null);
+
+        // Create a dummy ClinicalNote object for the request body
+        ClinicalNote updateClinicalNote = new ClinicalNote();
+        String requestBody = new ObjectMapper().writeValueAsString(updateClinicalNote);
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/999?index=999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void update_patient_record_exception() throws Exception {
+        PatientRecord updatePatientRecord = PatientRecord.builder()
+                .patId("1")
+                .clinicalNotes(new ArrayList<ClinicalNote>())
+                .build();
+
+        ClinicalNote clinicalNote = ClinicalNote.builder()
+                .date(LocalDate.parse("2025-02-18"))
+                .note("original note")
+                .build();
+
+        when(patientRecordRepository.findByPatId(any(String.class))).thenThrow(new RuntimeException("Runtime Exception"));
+
+        mockMvc.perform(put("http://localhost:8082/patHistory/update/1?index=0")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatePatientRecord)))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping("/patHistory")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class PatientRecordController {
     @Autowired
     private PatientRecordRepository patientRecordRepository;
@@ -71,6 +71,7 @@ public class PatientRecordController {
 
         try {
             List<PatientRecord> fetchPatientRecords = patientRecordRepository.findAll();
+            fetchPatientRecords.sort((patientRecord1, patientRecord2) -> Integer.compare(Integer.parseInt(patientRecord1.getPatId()), Integer.parseInt(patientRecord2.getPatId())));
             patientRecords.setPatientRecords(fetchPatientRecords);
 
             responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecords);
@@ -116,7 +117,7 @@ public class PatientRecordController {
                     .note(newNote)
                     .build();
 
-            patientRecord.addNote(clinicalNote);
+            patientRecord.addClinicalNote(clinicalNote);
             patientRecordRepository.save(patientRecord);
 
             responseEntity = ResponseEntity.status(HttpStatus.CREATED).body(patientRecord);
@@ -124,6 +125,51 @@ public class PatientRecordController {
             log.info("Saved patient-record: {}", patientRecord);
         } catch (RuntimeException ex) {
             log.error("Unable to saved Dr Note: {}", patientRecord);
+            log.error(ex.getMessage());
+
+            responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        return responseEntity;
+    }
+
+    /**
+     * Updates a specific clinical note within a patient's record.
+     *
+     * @param updatePatId   The patient ID whose record will be updated.
+     * @param index   The index of the clinical note to be updated (0-based).
+     * @param updateClinicalNote The updated clinical note text.
+     * @return A ResponseEntity containing the updated PatientRecord if successful,
+     * a 404 Not Found status if the patient record or note is not found,
+     * or a 500 Internal Server Error if a database error or other exception occurs.
+     * Returns a 200 OK status upon successful update.
+     */
+    @PutMapping("/update/{patId}")
+    public ResponseEntity<PatientRecord> updatePatientRecord(
+            @PathVariable("patId") String updatePatId,
+            @RequestParam("index") int index,
+            @RequestBody ClinicalNote updateClinicalNote) {
+        ResponseEntity<PatientRecord> responseEntity;
+        PatientRecord patientRecord;
+
+        log.info("put request handling.../update/ {}", updatePatId);
+
+        try {
+            patientRecord = patientRecordRepository.findByPatId(updatePatId);
+
+            if (patientRecord != null) {
+                patientRecord.updateClinicalNote(index, updateClinicalNote);
+                patientRecordRepository.save(patientRecord);
+
+                responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecord);
+                log.info("Updated patient record successfully");
+            } else {
+                responseEntity = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                log.info("Unable to find the patient from the recrod, patId:{}", updatePatId);
+            }
+
+        } catch (RuntimeException ex) {
+            log.error("Unable to update patient record, patId:{}", updatePatId);
             log.error(ex.getMessage());
 
             responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
