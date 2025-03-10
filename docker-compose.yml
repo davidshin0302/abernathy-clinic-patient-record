@@ -1,5 +1,6 @@
 services:
   abernathy-clinic-patientRecord:
+    image: abernathy-clinic-patient-record
     build: .
     ports:
       - "8082:8082"
