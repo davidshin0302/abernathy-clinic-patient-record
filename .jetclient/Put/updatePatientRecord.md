@@ -14,6 +14,6 @@ type = 'JSON'
 raw = '''
 {
   "date": "2025-02-18",
-  "note": "aaaaaaa"
+  "note": "Patient: TestBorderline Practitioner's notes/recommendations: Patient states that they are feeling a great deal of stress at work Patient also complains that their hearing seems Abnormal as of late"
 }'''
 ```
