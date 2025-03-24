@@ -76,7 +76,7 @@ public class PatientRecordController {
 
             responseEntity = ResponseEntity.status(HttpStatus.OK).body(patientRecords);
 
-            log.info("Processing request handling /get/patids...");
+            log.info("Processing request handling /get/patient-records...");
         } catch (RuntimeException ex) {
             log.error("Unable to fetch Dr Notes from DB");
             log.error(ex.getMessage());
