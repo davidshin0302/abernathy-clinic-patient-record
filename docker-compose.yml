@@ -18,3 +18,7 @@ services:
 
 volumes:
   mongo-data:
+
+networks:
+  patient-services-network:
+    name: patient-services-network
